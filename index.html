@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Irfan Study Timetable — Week 13 & 14</title>
+<title>XenArthur's Study Timetable — Week 13 & 14</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -34,25 +34,28 @@
     overflow-x: hidden;
   }
 
-  /* === CLOCK & HEADER === */
+  /* === CLOCK & HEADER (STICKY FOR MOBILE) === */
   .top-header {
     display: flex;
     justify-content: flex-end;
-    padding: 20px 40px 0;
-    position: relative;
-    z-index: 10;
+    padding: 20px 40px 10px;
+    position: sticky;       
+    top: 0;                 
+    z-index: 999;           
+    pointer-events: none;   
   }
 
   .live-clock {
-    background: rgba(13, 27, 42, 0.6);
-    backdrop-filter: blur(10px);
+    background: rgba(13, 27, 42, 0.7);
+    backdrop-filter: blur(12px); 
     border: 1px solid var(--border);
     padding: 10px 20px;
     border-radius: 100px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    pointer-events: auto; 
   }
 
   .time-display {
@@ -493,7 +496,9 @@
   footer span { color: var(--lavender); font-weight: bold; }
 
   @media (max-width: 700px) {
-    .header-bar { padding: 15px 20px; }
+    .top-header { 
+      padding: 15px 15px 5px; 
+    }
     .hero { padding: 20px 20px 30px; }
     .week-section, .progress-section { padding: 0 14px; }
     .legend { padding: 0 14px; }
@@ -503,10 +508,13 @@
 </head>
 <body>
 
+<!-- AUDIO NOTIFICATION SOUND -->
 <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
+<!-- TOAST NOTIFICATION CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
+<!-- HEADER (LIVE CLOCK) -->
 <div class="top-header">
   <div class="live-clock">
     <div id="liveTime" class="time-display">00:00 AM</div>
@@ -514,9 +522,10 @@
   </div>
 </div>
 
+<!-- HERO -->
 <div class="hero">
   <div class="hero-badge">📅 Academic Sprint Mode</div>
-  <h1>Week 13 → 14<br>Irfan Kene Buat !.</h1>
+  <h1>Week 13 → 14<br>Let's Get It Done.</h1>
   <p class="hero-sub">Tuesday, 1 July — Tuesday, 8 July 2025 &nbsp;·&nbsp; Sem 3 Final Push</p>
 
   <div class="quote-box">
@@ -525,6 +534,7 @@
   </div>
 </div>
 
+<!-- LEGEND -->
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:var(--sky)"></div>Class / Lecture</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div>Test / Exam</div>
@@ -534,6 +544,7 @@
   <div class="legend-item"><div class="legend-dot" style="background:var(--mint)"></div>Free / Rest Time</div>
 </div>
 
+<!-- STATS -->
 <div class="progress-section">
   <div class="stat-card">
     <div class="stat-num" style="color:var(--coral)">4</div>
@@ -557,6 +568,7 @@
   </div>
 </div>
 
+<!-- ════════════ WEEK 13 ════════════ -->
 <div class="week-section">
   <div class="week-label">
     <h2>📖 Week 13</h2>
@@ -566,6 +578,7 @@
 
   <div class="day-grid">
 
+    <!-- TUESDAY 1 JUL -->
     <div class="day-card today">
       <div class="day-head">
         <div>
@@ -608,6 +621,7 @@
       </div>
     </div>
 
+    <!-- WEDNESDAY 2 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -659,6 +673,7 @@
       </div>
     </div>
 
+    <!-- THURSDAY 3 JUL (FIXED) -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -703,6 +718,7 @@
       </div>
     </div>
 
+    <!-- FRIDAY 4 JUL (FIXED) -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -740,6 +756,7 @@
       </div>
     </div>
 
+    <!-- SATURDAY 5 JUL (FIXED) -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -770,10 +787,12 @@
       </div>
     </div>
 
-  </div></div>
+  </div><!-- end week 13 grid -->
+</div>
 
 <hr class="week-divider">
 
+<!-- ════════════ WEEK 14 ════════════ -->
 <div class="week-section">
   <div class="week-label">
     <h2>🏁 Week 14</h2>
@@ -783,6 +802,7 @@
 
   <div class="day-grid">
 
+    <!-- SUNDAY 6 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -820,6 +840,7 @@
       </div>
     </div>
 
+    <!-- MONDAY 7 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -871,6 +892,7 @@
       </div>
     </div>
 
+    <!-- TUESDAY 8 JUL -->
     <div class="day-card" style="border-color:rgba(95,255,212,0.3); box-shadow: 0 0 30px rgba(95,255,212,0.06);">
       <div class="day-head">
         <div>
@@ -909,8 +931,10 @@
       </div>
     </div>
 
-  </div></div>
+  </div><!-- end week 14 grid -->
+</div>
 
+<!-- FOOTER -->
 <footer>
   <p>Built for <span>XenArthur</span> · Sem 3 Final Sprint · Keep going — the finish line is closer than you think 🌙</p>
 </footer>
@@ -947,7 +971,6 @@
     const now = new Date();
     let h = now.getHours();
     let m = now.getMinutes();
-    let s = now.getSeconds();
     let ampm = h >= 12 ? 'PM' : 'AM';
     
     h = h % 12;
@@ -955,22 +978,18 @@
     m = m < 10 ? '0' + m : m;
     
     document.getElementById('liveTime').textContent = `${h}:${m} ${ampm}`;
-    
-    /* Advanced Tip for XenArthur: 
-      You can add an 'if' statement here to check if the current time matches 
-      your study session time and automatically run triggerAlert()! 
-      Example: if (h == 8 && m == 0 && ampm == 'PM') { triggerAlert("Time to study Python!"); }
-    */
   }
   setInterval(updateClock, 1000);
   updateClock();
 
-  // --- TOAST NOTIFICATION LOGIC ---
+  // --- TOAST & NATIVE DEVICE NOTIFICATION LOGIC ---
   function triggerTestAlert() {
+    // 1. Play the audio chime
     const audio = document.getElementById('alertSound');
-    audio.volume = 0.5; // Keeps it from being too loud
+    audio.volume = 0.5;
     audio.play().catch(e => console.log("Audio play prevented by browser policy until user interacts."));
     
+    // 2. Show the on-screen Toast Notification 
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.innerHTML = `
@@ -980,18 +999,43 @@
         <div class="toast-time">Stay focused, Xen. You got this.</div>
       </div>
     `;
-    
     const container = document.getElementById('toastContainer');
     container.appendChild(toast);
     
-    // Animate in
     setTimeout(() => toast.classList.add('show'), 100);
     
-    // Remove after 5 seconds
     setTimeout(() => {
       toast.classList.remove('show');
-      setTimeout(() => toast.remove(), 400); // wait for exit animation
+      setTimeout(() => toast.remove(), 400); 
     }, 5000);
+
+    // 3. Trigger the NATIVE Phone/Desktop Notification
+    triggerDeviceNotification("⏰ Time to focus, XenArthur!", "Your next study session is starting.");
+  }
+
+  // --- NATIVE NOTIFICATION FUNCTION ---
+  function triggerDeviceNotification(title, message) {
+    if (!("Notification" in window)) {
+      console.log("This browser does not support mobile notifications.");
+      return;
+    }
+
+    if (Notification.permission === "granted") {
+      new Notification(title, { 
+        body: message, 
+        icon: "https://cdn-icons-png.flaticon.com/512/825/825590.png"
+      });
+    } 
+    else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(permission => {
+        if (permission === "granted") {
+          new Notification(title, { 
+            body: message,
+            icon: "https://cdn-icons-png.flaticon.com/512/825/825590.png" 
+          });
+        }
+      });
+    }
   }
 </script>
 </body>
