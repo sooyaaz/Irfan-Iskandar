@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XenArthur's Study Timetable — Week 13 & 14</title>
+<title>XenArthur's Final Sprint — Week 13 & 14</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@1,400;1,600&display=swap" rel="stylesheet">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,7 +11,7 @@
   :root {
     --bg: #0D1B2A;
     --bg2: #112036;
-    --card: #162840;
+    --card: rgba(22, 40, 64, 0.6);
     --card2: #1A3050;
     --lavender: #C8B8E8;
     --lavender-soft: #E8DFFF;
@@ -26,45 +26,115 @@
     --border: rgba(200,184,232,0.15);
   }
 
+  html {
+    scroll-behavior: smooth; /* Gives that butter-smooth glide when clicking nav links */
+  }
+
   body {
     background: var(--bg);
     color: var(--text);
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    position: relative;
   }
 
-  /* === CLOCK & HEADER (STICKY FOR MOBILE) === */
-  .top-header {
-    display: flex;
-    justify-content: flex-end;
-    padding: 20px 40px 10px;
-    position: sticky;       
-    top: 0;                 
-    z-index: 999;           
-    pointer-events: none;   
+  /* === AMBIENT BACKGROUND MOVEMENT === */
+  .ambient-orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.15;
+    z-index: -1;
+    pointer-events: none;
+    animation: drift 25s infinite alternate ease-in-out;
   }
+  .orb-1 { width: 500px; height: 500px; background: var(--lavender); top: -10%; left: -10%; }
+  .orb-2 { width: 400px; height: 400px; background: var(--sky); bottom: 10%; right: -5%; animation-delay: -5s; animation-duration: 30s; }
+  .orb-3 { width: 300px; height: 300px; background: var(--mint); top: 40%; left: 40%; opacity: 0.08; animation-delay: -10s; }
+
+  @keyframes drift {
+    0% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(100px, 50px) scale(1.2); }
+    100% { transform: translate(-50px, 150px) scale(0.9); }
+  }
+
+  /* === SCROLL REVEAL ANIMATIONS === */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* === GLASS NAVIGATION BAR === */
+  .main-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    background: rgba(13, 27, 42, 0.6);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    z-index: 1000;
+    padding: 12px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 24px;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    position: relative;
+    padding: 6px 0;
+    transition: color 0.3s ease;
+  }
+
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 0%; height: 2px;
+    background: var(--lavender);
+    transition: width 0.3s ease;
+    border-radius: 2px;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+  .nav-links a:hover::after { width: 100%; }
 
   .live-clock {
-    background: rgba(13, 27, 42, 0.7);
-    backdrop-filter: blur(12px); 
-    border: 1px solid var(--border);
-    padding: 10px 20px;
-    border-radius: 100px;
     display: flex;
     align-items: center;
     gap: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-    pointer-events: auto; 
   }
 
   .time-display {
     font-family: 'Space Grotesk', sans-serif;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 700;
     color: var(--mint);
     letter-spacing: 1px;
-    text-shadow: 0 0 10px rgba(95,255,212,0.3);
+    text-shadow: 0 0 10px rgba(95,255,212,0.4);
+    animation: slowPulse 3s infinite alternate;
+  }
+
+  @keyframes slowPulse {
+    from { text-shadow: 0 0 5px rgba(95,255,212,0.2); }
+    to { text-shadow: 0 0 15px rgba(95,255,212,0.6); }
   }
 
   .alarm-btn {
@@ -72,67 +142,63 @@
     border: 1px solid var(--border);
     color: var(--text);
     cursor: pointer;
-    font-size: 12px;
-    padding: 4px 10px;
+    font-size: 11px;
+    padding: 6px 12px;
     border-radius: 50px;
-    transition: all 0.2s;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     font-weight: 600;
   }
   
   .alarm-btn:hover {
     background: var(--lavender);
     color: var(--bg);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(200,184,232,0.5);
   }
+
+  /* Adjust anchor links so they don't hide under the fixed navbar */
+  .scroll-anchor { scroll-margin-top: 100px; }
 
   /* === TOAST ALERT === */
   .toast-container {
     position: fixed;
     bottom: 30px;
     right: 30px;
-    z-index: 1000;
+    z-index: 2000;
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
 
   .toast {
-    background: var(--card2);
+    background: rgba(26, 48, 80, 0.9);
+    backdrop-filter: blur(10px);
     border-left: 4px solid var(--coral);
     color: var(--text);
     padding: 16px 24px;
     border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
     transform: translateX(120%);
-    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     align-items: center;
     gap: 12px;
   }
+  .toast.show { transform: translateX(0); }
+  .toast-icon { font-size: 24px; animation: bounceIcon 1s infinite alternate; }
+  .toast-text { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; }
+  .toast-time { font-size: 11px; color: var(--lavender); display: block; margin-top: 4px; }
 
-  .toast.show {
-    transform: translateX(0);
+  @keyframes bounceIcon {
+    from { transform: translateY(0); }
+    to { transform: translateY(-4px); }
   }
-
-  .toast-icon { font-size: 20px; }
-  .toast-text { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; }
-  .toast-time { font-size: 11px; color: var(--muted); display: block; margin-top: 4px; }
-
 
   /* === HERO === */
   .hero {
     position: relative;
-    padding: 20px 40px 40px;
+    padding: 120px 40px 40px; /* Pushed down for navbar */
     text-align: center;
-    overflow: hidden;
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: -120px; left: 50%; transform: translateX(-50%);
-    width: 700px; height: 700px;
-    background: radial-gradient(circle, rgba(200,184,232,0.12) 0%, transparent 65%);
-    pointer-events: none;
   }
 
   .hero-badge {
@@ -147,6 +213,12 @@
     padding: 6px 16px;
     border-radius: 100px;
     margin-bottom: 20px;
+    animation: floatBadge 3s infinite ease-in-out;
+  }
+
+  @keyframes floatBadge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
   }
 
   .hero h1 {
@@ -173,11 +245,17 @@
   .quote-box {
     max-width: 560px;
     margin: 0 auto 50px;
-    background: rgba(200,184,232,0.06);
+    background: rgba(200,184,232,0.04);
     border: 1px solid var(--border);
+    backdrop-filter: blur(5px);
     border-radius: 16px;
     padding: 24px 28px;
     position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .quote-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
   }
 
   .quote-box::before {
@@ -199,7 +277,7 @@
     line-height: 1.7;
     margin-bottom: 10px;
     min-height: 50px;
-    transition: opacity 0.5s;
+    transition: opacity 0.5s ease;
   }
 
   .quote-author {
@@ -225,224 +303,21 @@
     align-items: center;
     gap: 8px;
     background: var(--card);
+    backdrop-filter: blur(8px);
     border: 1px solid var(--border);
     border-radius: 100px;
     padding: 7px 14px;
     font-size: 12px;
     color: var(--muted);
-  }
-
-  .legend-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  /* === WEEK HEADERS === */
-  .week-section {
-    padding: 0 30px 50px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-
-  .week-label {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-
-  .week-label h2 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--lavender);
-    letter-spacing: -0.5px;
-  }
-
-  .week-label .week-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
-
-  .week-label .week-tag {
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  /* === DAY GRID === */
-  .day-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-  }
-
-  /* === DAY CARD === */
-  .day-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    overflow: hidden;
-    transition: transform 0.2s, box-shadow 0.2s;
-  }
-
-  .day-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-  }
-
-  .day-card.today {
-    border-color: rgba(200,184,232,0.4);
-    box-shadow: 0 0 0 1px rgba(200,184,232,0.2), 0 8px 32px rgba(200,184,232,0.08);
-  }
-
-  .day-head {
-    padding: 16px 18px 14px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .day-name {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.3px;
-  }
-
-  .day-date {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  .today-badge {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    background: var(--lavender);
-    color: #0D1B2A;
-    padding: 3px 8px;
-    border-radius: 100px;
-  }
-
-  /* === EVENTS === */
-  .events {
-    padding: 14px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .event {
-    border-radius: 12px;
-    padding: 12px 14px;
-    position: relative;
-    overflow: hidden;
+    transition: all 0.3s;
     cursor: default;
-    transition: filter 0.2s;
   }
-
-  .event:hover { filter: brightness(1.08); }
-
-  .event::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    opacity: 0.12;
-    border-radius: 12px;
-  }
-
-  .event.class { background: rgba(116,192,252,0.15); border: 1px solid rgba(116,192,252,0.3); }
-  .event.class .evt-label { color: var(--sky); }
-
-  .event.urgent { background: rgba(255,123,123,0.15); border: 1px solid rgba(255,123,123,0.3); }
-  .event.urgent .evt-label { color: var(--coral); }
-
-  .event.prep { background: rgba(255,209,102,0.13); border: 1px solid rgba(255,209,102,0.28); }
-  .event.prep .evt-label { color: var(--gold); }
-
-  .event.study { background: rgba(200,184,232,0.13); border: 1px solid rgba(200,184,232,0.28); }
-  .event.study .evt-label { color: var(--lavender); }
-
-  .event.free { background: rgba(95,255,212,0.08); border: 1px solid rgba(95,255,212,0.2); }
-  .event.free .evt-label { color: var(--mint); }
-
-  .event.assignment { background: rgba(255,157,181,0.13); border: 1px solid rgba(255,157,181,0.28); }
-  .event.assignment .evt-label { color: var(--rose); }
-
-  .event.rest { background: rgba(144,224,160,0.1); border: 1px solid rgba(144,224,160,0.2); }
-  .event.rest .evt-label { color: var(--sage); }
-
-  .evt-label {
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .evt-label .dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: currentColor;
-    flex-shrink: 0;
-  }
-
-  .evt-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1.3;
+  .legend-item:hover {
+    transform: translateY(-2px);
+    background: rgba(200,184,232,0.08);
     color: var(--text);
-    margin-bottom: 4px;
   }
-
-  .evt-time {
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 500;
-  }
-
-  .evt-note {
-    font-size: 10.5px;
-    color: rgba(200,200,220,0.6);
-    margin-top: 5px;
-    line-height: 1.4;
-    font-style: italic;
-  }
-
-  .evt-priority {
-    display: inline-block;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 2px 7px;
-    border-radius: 100px;
-    margin-top: 5px;
-  }
-
-  .priority-high { background: rgba(255,123,123,0.25); color: var(--coral); }
-  .priority-med { background: rgba(255,209,102,0.2); color: var(--gold); }
-  .priority-low { background: rgba(95,255,212,0.15); color: var(--mint); }
-
-  /* === DIVIDER === */
-  .week-divider {
-    margin: 10px 30px 50px;
-    border: none;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(200,184,232,0.3), transparent);
-  }
+  .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 8px currentColor; }
 
   /* === PROGRESS SECTION === */
   .progress-section {
@@ -456,77 +331,239 @@
 
   .stat-card {
     background: var(--card);
+    backdrop-filter: blur(10px);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 20px;
+    padding: 24px 20px;
     text-align: center;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--lavender), transparent);
+    opacity: 0; transition: opacity 0.4s;
   }
 
-  .stat-num {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 36px;
-    font-weight: 700;
-    line-height: 1;
-    margin-bottom: 6px;
+  .stat-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+    border-color: rgba(200,184,232,0.4);
+  }
+  .stat-card:hover::before { opacity: 1; }
+
+  .stat-num { font-family: 'Space Grotesk', sans-serif; font-size: 42px; font-weight: 700; line-height: 1; margin-bottom: 8px; }
+  .stat-label { font-size: 11px; color: var(--text); text-transform: uppercase; letter-spacing: 0.12em; font-weight: 600; }
+  .stat-sub { font-size: 10px; color: var(--muted); margin-top: 6px; }
+
+  /* === WEEK HEADERS === */
+  .week-section {
+    padding: 0 30px 50px;
+    max-width: 1400px;
+    margin: 0 auto;
   }
 
-  .stat-label {
-    font-size: 11px;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    font-weight: 500;
+  .week-label {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 30px;
   }
 
-  .stat-sub {
-    font-size: 10px;
-    color: rgba(136,153,170,0.6);
-    margin-top: 4px;
+  .week-label h2 { font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 700; color: var(--lavender); letter-spacing: -0.5px; }
+  .week-label .week-line { flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
+  .week-label .week-tag { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: rgba(200,184,232,0.1); padding: 4px 12px; border-radius: 50px; }
+
+  /* === DAY GRID & CARDS === */
+  .day-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
   }
+
+  .day-card {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .day-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    border-color: rgba(200,184,232,0.3);
+  }
+
+  .day-card.today {
+    border-color: rgba(200,184,232,0.6);
+    box-shadow: 0 0 0 1px rgba(200,184,232,0.3), 0 10px 40px rgba(200,184,232,0.15);
+  }
+
+  .day-head {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    background: rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .day-name { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+  .day-date { font-size: 11px; color: var(--lavender); font-weight: 500; margin-top: 2px; }
+  .today-badge { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; background: var(--lavender); color: #0D1B2A; padding: 4px 10px; border-radius: 100px; animation: pulseGlow 2s infinite alternate; }
+
+  @keyframes pulseGlow {
+    from { box-shadow: 0 0 5px rgba(200,184,232,0.4); }
+    to { box-shadow: 0 0 15px rgba(200,184,232,0.8); }
+  }
+
+  /* === EVENTS === */
+  .events {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .event {
+    border-radius: 12px;
+    padding: 14px 16px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: all 0.3s ease;
+  }
+
+  .event:hover {
+    transform: translateX(6px);
+    filter: brightness(1.15);
+    box-shadow: -4px 4px 15px rgba(0,0,0,0.2);
+  }
+
+  .event::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.15; border-radius: 12px; z-index: -1;
+  }
+
+  /* Event Types Colors */
+  .event.class { border: 1px solid rgba(116,192,252,0.3); }
+  .event.class::before { background: var(--sky); }
+  .event.class .evt-label { color: var(--sky); }
+
+  .event.urgent { border: 1px solid rgba(255,123,123,0.3); }
+  .event.urgent::before { background: var(--coral); }
+  .event.urgent .evt-label { color: var(--coral); }
+
+  .event.prep { border: 1px solid rgba(255,209,102,0.28); }
+  .event.prep::before { background: var(--gold); }
+  .event.prep .evt-label { color: var(--gold); }
+
+  .event.study { border: 1px solid rgba(200,184,232,0.28); }
+  .event.study::before { background: var(--lavender); }
+  .event.study .evt-label { color: var(--lavender); }
+
+  .event.free { border: 1px solid rgba(95,255,212,0.2); }
+  .event.free::before { background: var(--mint); }
+  .event.free .evt-label { color: var(--mint); }
+
+  .event.assignment { border: 1px solid rgba(255,157,181,0.28); }
+  .event.assignment::before { background: var(--rose); }
+  .event.assignment .evt-label { color: var(--rose); }
+
+  .event.rest { border: 1px solid rgba(144,224,160,0.2); }
+  .event.rest::before { background: var(--sage); }
+  .event.rest .evt-label { color: var(--sage); }
+
+  .evt-label { font-size: 9px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+  .evt-label .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 6px currentColor; }
+  .evt-title { font-family: 'Space Grotesk', sans-serif; font-size: 14px; font-weight: 600; line-height: 1.3; color: #FFF; margin-bottom: 4px; }
+  .evt-time { font-size: 11px; color: rgba(255,255,255,0.7); font-weight: 500; font-family: 'Space Grotesk', sans-serif; }
+  .evt-note { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 8px; line-height: 1.5; font-style: italic; }
+  
+  .evt-priority {
+    display: inline-block; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 8px; border-radius: 100px; margin-top: 8px;
+  }
+  .priority-high { background: rgba(255,123,123,0.2); color: var(--coral); border: 1px solid rgba(255,123,123,0.4); }
+  .priority-med { background: rgba(255,209,102,0.15); color: var(--gold); border: 1px solid rgba(255,209,102,0.4); }
+
+  /* === DIVIDER === */
+  .week-divider { margin: 20px 30px 60px; border: none; height: 1px; background: linear-gradient(90deg, transparent, rgba(200,184,232,0.4), transparent); }
+
+  /* === BACK TO TOP BUTTON === */
+  .back-to-top {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    width: 45px; height: 45px;
+    border-radius: 50%;
+    background: rgba(200,184,232,0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--lavender);
+    color: var(--lavender);
+    display: flex; justify-content: center; align-items: center;
+    font-size: 20px;
+    text-decoration: none;
+    z-index: 1000;
+    opacity: 0; pointer-events: none;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 15px rgba(200,184,232,0.2);
+  }
+  .back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); animation: floatBtn 3s infinite ease-in-out; }
+  .back-to-top:hover { background: var(--lavender); color: var(--bg); box-shadow: 0 0 25px rgba(200,184,232,0.6); transform: scale(1.1) !important; }
+
+  @keyframes floatBtn { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
   /* === FOOTER === */
-  footer {
-    text-align: center;
-    padding: 40px;
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--muted);
-  }
+  footer { text-align: center; padding: 60px 20px; font-size: 13px; color: var(--muted); position: relative; z-index: 10; border-top: 1px solid rgba(255,255,255,0.05); background: linear-gradient(to top, rgba(0,0,0,0.5), transparent); }
+  footer span { color: var(--mint); font-weight: bold; text-shadow: 0 0 10px rgba(95,255,212,0.4); }
 
-  footer span { color: var(--lavender); font-weight: bold; }
-
-  @media (max-width: 700px) {
-    .top-header { 
-      padding: 15px 15px 5px; 
-    }
-    .hero { padding: 20px 20px 30px; }
+  @media (max-width: 800px) {
+    .main-nav { padding: 12px 20px; flex-direction: column; gap: 10px; }
+    .hero { padding: 140px 20px 30px; }
     .week-section, .progress-section { padding: 0 14px; }
-    .legend { padding: 0 14px; }
     .day-grid { grid-template-columns: 1fr; }
+    .back-to-top { bottom: 20px; left: 20px; }
   }
 </style>
 </head>
-<body>
+<body id="top">
 
-<!-- AUDIO NOTIFICATION SOUND -->
+<!-- AMBIENT BACKGROUND -->
+<div class="ambient-orb orb-1"></div>
+<div class="ambient-orb orb-2"></div>
+<div class="ambient-orb orb-3"></div>
+
+<!-- AUDIO -->
 <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-<!-- TOAST NOTIFICATION CONTAINER -->
+<!-- TOAST CONTAINER -->
 <div class="toast-container" id="toastContainer"></div>
 
-<!-- HEADER (LIVE CLOCK) -->
-<div class="top-header">
+<!-- FLOATING NAVBAR -->
+<nav class="main-nav" id="navbar">
+  <div class="nav-links">
+    <a href="#stats">Stats</a>
+    <a href="#week13">Week 13</a>
+    <a href="#week14">Week 14</a>
+  </div>
   <div class="live-clock">
     <div id="liveTime" class="time-display">00:00 AM</div>
     <button class="alarm-btn" onclick="triggerTestAlert()">🔔 Test Alert</button>
   </div>
-</div>
+</nav>
 
 <!-- HERO -->
-<div class="hero">
+<div class="hero reveal">
   <div class="hero-badge">📅 Academic Sprint Mode</div>
-  <h1>Week 13 → 14<br>Irfan Kene Buat !.</h1>
-  <p class="hero-sub">Tuesday, 1 July — Tuesday, 8 July 2025 &nbsp;·&nbsp; Sem 3 Final Push</p>
+  <h1>Week 13 → 14<br>Irfan Kene Buat.</h1>
+  <p class="hero-sub">Sem 3 Final Push &nbsp;·&nbsp; The End Game</p>
 
   <div class="quote-box">
     <div class="quote-text" id="quoteText">You don't have to be great to get started, but you have to get started to be great.</div>
@@ -535,411 +572,209 @@
 </div>
 
 <!-- LEGEND -->
-<div class="legend">
-  <div class="legend-item"><div class="legend-dot" style="background:var(--sky)"></div>Class / Lecture</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div>Test / Exam</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div>Study Session</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--lavender)"></div>Preparation / Hafal</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--rose)"></div>Assignment Work</div>
-  <div class="legend-item"><div class="legend-dot" style="background:var(--mint)"></div>Free / Rest Time</div>
+<div class="legend reveal">
+  <div class="legend-item"><div class="legend-dot" style="color:var(--sky)"></div>Class</div>
+  <div class="legend-item"><div class="legend-dot" style="color:var(--coral)"></div>Exam</div>
+  <div class="legend-item"><div class="legend-dot" style="color:var(--gold)"></div>Study</div>
+  <div class="legend-item"><div class="legend-dot" style="color:var(--lavender)"></div>Prep</div>
+  <div class="legend-item"><div class="legend-dot" style="color:var(--rose)"></div>Assignment</div>
+  <div class="legend-item"><div class="legend-dot" style="color:var(--mint)"></div>Rest</div>
 </div>
 
 <!-- STATS -->
-<div class="progress-section">
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--coral)">4</div>
+<div id="stats" class="progress-section scroll-anchor">
+  <div class="stat-card reveal">
+    <div class="stat-num" style="color:var(--coral); text-shadow: 0 0 20px rgba(255,123,123,0.4);">4</div>
     <div class="stat-label">Tests / Exams</div>
-    <div class="stat-sub">CTU test, Python test, Gamification test, LCC</div>
+    <div class="stat-sub">Final, Python, Gamification, LCC</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--rose)">2</div>
+  <div class="stat-card reveal" style="transition-delay: 0.1s;">
+    <div class="stat-num" style="color:var(--rose); text-shadow: 0 0 20px rgba(255,157,181,0.4);">2</div>
     <div class="stat-label">Presentations</div>
-    <div class="stat-sub">LCC objectives + IMC451 Architecture</div>
+    <div class="stat-sub">LCC objectives + IMC451 Arch</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--lavender)">1</div>
+  <div class="stat-card reveal" style="transition-delay: 0.2s;">
+    <div class="stat-num" style="color:var(--lavender); text-shadow: 0 0 20px rgba(200,184,232,0.4);">1</div>
     <div class="stat-label">Roleplay</div>
     <div class="stat-sub">Mandarin script hafal</div>
   </div>
-  <div class="stat-card">
-    <div class="stat-num" style="color:var(--mint)">7</div>
+  <div class="stat-card reveal" style="transition-delay: 0.3s;">
+    <div class="stat-num" style="color:var(--mint); text-shadow: 0 0 20px rgba(95,255,212,0.4);">7</div>
     <div class="stat-label">Days to Conquer</div>
     <div class="stat-sub">Then Sem 3 is done! 🎉</div>
   </div>
 </div>
 
 <!-- ════════════ WEEK 13 ════════════ -->
-<div class="week-section">
-  <div class="week-label">
+<div id="week13" class="week-section scroll-anchor">
+  <div class="week-label reveal">
     <h2>📖 Week 13</h2>
     <div class="week-line"></div>
     <div class="week-tag">1 Jul — 5 Jul</div>
   </div>
 
   <div class="day-grid">
-
-    <!-- TUESDAY 1 JUL -->
-    <div class="day-card today">
+    <!-- TUESDAY -->
+    <div class="day-card today reveal">
       <div class="day-head">
-        <div>
-          <div class="day-name">Tuesday</div>
-          <div class="day-date">1 July</div>
-        </div>
+        <div><div class="day-name">Tuesday</div><div class="day-date">1 July</div></div>
         <span class="today-badge">Today</span>
       </div>
       <div class="events">
-        <div class="event class">
-          <div class="evt-label"><span class="dot"></span>Class</div>
-          <div class="evt-title">IMC501 Lecture</div>
-          <div class="evt-time">🕘 9:00 AM — 10:00 AM</div>
-        </div>
-        <div class="event class">
-          <div class="evt-label"><span class="dot"></span>Class</div>
-          <div class="evt-title">Python Class</div>
-          <div class="evt-time">🕐 11:00 AM — 2:00 PM</div>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Gamification: Chapter 1–3</div>
-          <div class="evt-time">🕒 3:00 PM — 5:00 PM</div>
-          <div class="evt-note">Skim slides (avg 5 slides/chapter). Jot key terms.</div>
-          <span class="evt-priority priority-high">⚡ High Priority</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Final Test: Ch 6–7 (Review)</div>
-          <div class="evt-time">🕖 6:00 PM — 8:00 PM</div>
-          <div class="evt-note">You already did Ch 1–5. Push through Ch 6 & 7 tonight.</div>
-          <span class="evt-priority priority-high">⚡ High Priority</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Rest</div>
-          <div class="evt-title">Wind Down</div>
-          <div class="evt-time">🌙 10:00 PM — 1:00 AM (limit)</div>
-          <div class="evt-note">Light review only. Sleep is study too.</div>
-        </div>
+        <div class="event class"><div class="evt-label"><span class="dot"></span>Class</div><div class="evt-title">IMC501 Lecture</div><div class="evt-time">🕘 9:00 AM — 10:00 AM</div></div>
+        <div class="event class"><div class="evt-label"><span class="dot"></span>Class</div><div class="evt-title">Python Class</div><div class="evt-time">🕐 11:00 AM — 2:00 PM</div></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">Gamification: Ch 1–3</div><div class="evt-time">🕒 3:00 PM — 5:00 PM</div><div class="evt-note">Skim slides. Jot key terms.</div><span class="evt-priority priority-high">⚡ High Priority</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">Final Test: Ch 6–7</div><div class="evt-time">🕖 6:00 PM — 8:00 PM</div><div class="evt-note">Push through Ch 6 & 7 tonight.</div><span class="evt-priority priority-high">⚡ High Priority</span></div>
       </div>
     </div>
 
-    <!-- WEDNESDAY 2 JUL -->
-    <div class="day-card">
+    <!-- WEDNESDAY -->
+    <div class="day-card reveal">
       <div class="day-head">
-        <div>
-          <div class="day-name">Wednesday</div>
-          <div class="day-date">2 July</div>
-        </div>
+        <div><div class="day-name">Wednesday</div><div class="day-date">2 July</div></div>
       </div>
       <div class="events">
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Preparation</div>
-          <div class="evt-title">Mandarin Hafal Script — Final Round</div>
-          <div class="evt-time">🕗 7:30 AM — 9:30 AM</div>
-          <div class="evt-note">Morning = best memory retention! Read aloud, repeat.</div>
-          <span class="evt-priority priority-high">⚡ Roleplay 12PM</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Preparation</div>
-          <div class="evt-title">LCC Presentation — Hafal Objectives</div>
-          <div class="evt-time">🕙 9:30 AM — 11:30 AM</div>
-          <div class="evt-note">Understand your part, then practise saying it fluently. No reading.</div>
-          <span class="evt-priority priority-high">⚡ Present at 2PM</span>
-        </div>
-        <div class="event class">
-          <div class="evt-label"><span class="dot"></span>Roleplay</div>
-          <div class="evt-title">Bahasa Mandarin Roleplay</div>
-          <div class="evt-time">🕛 12:00 PM — 2:00 PM</div>
-          <div class="evt-note">You got this. Breathe. Hafal sudah ✅</div>
-        </div>
-        <div class="event urgent">
-          <div class="evt-label"><span class="dot"></span>Presentation</div>
-          <div class="evt-title">LCC Presentation — Your Part</div>
-          <div class="evt-time">🕑 2:00 PM — (end)</div>
-          <div class="evt-note">Present objectives with confidence. No script, cakap natural.</div>
-          <span class="evt-priority priority-high">⚡ Graded</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Final Test CTU: Full Review (3 sets Soalan)</div>
-          <div class="evt-time">🕔 4:30 PM — 7:30 PM</div>
-          <div class="evt-note">Final chapter, then drill all 3 sets of past questions!</div>
-          <span class="evt-priority priority-high">⚡ Test tmr 4PM</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Rest</div>
-          <div class="evt-title">Relax + Light Revision</div>
-          <div class="evt-time">🌙 9:00 PM — 1:00 AM (limit)</div>
-          <div class="evt-note">Don't burn out. Quick recap notes only.</div>
-        </div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Prep</div><div class="evt-title">Mandarin Hafal Final</div><div class="evt-time">🕗 7:30 AM — 9:30 AM</div><span class="evt-priority priority-high">⚡ Roleplay 12PM</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Prep</div><div class="evt-title">LCC Presentation Hafal</div><div class="evt-time">🕙 9:30 AM — 11:30 AM</div><span class="evt-priority priority-high">⚡ Present 2PM</span></div>
+        <div class="event class"><div class="evt-label"><span class="dot"></span>Roleplay</div><div class="evt-title">Bahasa Mandarin</div><div class="evt-time">🕛 12:00 PM — 2:00 PM</div></div>
+        <div class="event urgent"><div class="evt-label"><span class="dot"></span>Present</div><div class="evt-title">LCC Presentation</div><div class="evt-time">🕑 2:00 PM — end</div><span class="evt-priority priority-high">⚡ Graded</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">CTU: Full Review</div><div class="evt-time">🕔 4:30 PM — 7:30 PM</div><span class="evt-priority priority-high">⚡ Test tmr 4PM</span></div>
       </div>
     </div>
 
-    <!-- THURSDAY 3 JUL (FIXED) -->
-    <div class="day-card">
+    <!-- THURSDAY -->
+    <div class="day-card reveal">
       <div class="day-head">
-        <div>
-          <div class="day-name">Thursday</div>
-          <div class="day-date">3 July</div>
-        </div>
+        <div><div class="day-name">Thursday</div><div class="day-date">3 July</div></div>
       </div>
       <div class="events">
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Final Test CTU: Last Review (All Chapters)</div>
-          <div class="evt-time">🕗 8:00 AM — 12:00 PM</div>
-          <div class="evt-note">Focus on weak areas. Drill sets again. Summarise key points.</div>
-          <span class="evt-priority priority-high">⚡ Test at 4PM</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Break</div>
-          <div class="evt-title">Lunch + Rest + Mental Prep</div>
-          <div class="evt-time">🕛 12:00 PM — 3:30 PM</div>
-          <div class="evt-note">Eat well, rest eyes, light review notes only. Trust yourself.</div>
-        </div>
-        <div class="event urgent">
-          <div class="evt-label"><span class="dot"></span>FINAL TEST</div>
-          <div class="evt-title">Final Test CTU — 40 Questions</div>
-          <div class="evt-time">🕓 4:00 PM — 6:00 PM</div>
-          <div class="evt-note">8 chapters, 3 sets practised. You are READY.</div>
-          <span class="evt-priority priority-high">⚡ Exam</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Gamification: Chapter 4–10</div>
-          <div class="evt-time">🕗 8:00 PM — 12:00 AM</div>
-          <div class="evt-note">Focus on weak areas. Drill sets again. Summarise key points.</div>
-          <span class="evt-priority priority-high">⚡ Test manana</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>You Deserve Rest</div>
-          <div class="evt-title">Free Time 🎉</div>
-          <div class="evt-time">🌙 1:00 AM onwards</div>
-          <div class="evt-note">Test done. Celebrate. Sleep early.</div>
-        </div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">CTU: Last Review</div><div class="evt-time">🕗 8:00 AM — 12:00 PM</div><span class="evt-priority priority-high">⚡ Test 4PM</span></div>
+        <div class="event free"><div class="evt-label"><span class="dot"></span>Break</div><div class="evt-title">Mental Prep</div><div class="evt-time">🕛 12:00 PM — 3:30 PM</div></div>
+        <div class="event urgent"><div class="evt-label"><span class="dot"></span>EXAM</div><div class="evt-title">Final Test CTU</div><div class="evt-time">🕓 4:00 PM — 6:00 PM</div><div class="evt-note">40 Qs. You are READY.</div><span class="evt-priority priority-high">⚡ Exam</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">Gamification: Ch 4–10</div><div class="evt-time">🕗 8:00 PM — 12:00 AM</div><span class="evt-priority priority-high">⚡ Test manana</span></div>
       </div>
     </div>
 
-    <!-- FRIDAY 4 JUL (FIXED) -->
-    <div class="day-card">
+    <!-- FRIDAY -->
+    <div class="day-card reveal">
       <div class="day-head">
-        <div>
-          <div class="day-name">Friday</div>
-          <div class="day-date">4 July</div>
-        </div>
+        <div><div class="day-name">Friday</div><div class="day-date">4 July</div></div>
       </div>
       <div class="events">
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Gamification: Final Revision</div>
-          <div class="evt-time">🕗 5:00 AM — 6:00 PM</div>
-          <div class="evt-note">Focus on weak areas. Drill sets again. Summarise key points.</div>
-          <span class="evt-priority priority-high">⚡ Test manana</span>
-        </div>
-        <div class="event urgent">
-          <div class="evt-label"><span class="dot"></span>TEST DAY</div>
-          <div class="evt-title">Gamification Subject Test</div>
-          <div class="evt-time">🕗 Morning (check slot)</div>
-          <div class="evt-note">10 chapters studied ✅ Walk in confident.</div>
-          <span class="evt-priority priority-high">⚡ Exam</span>
-        </div>
-        <div class="event assignment">
-          <div class="evt-label"><span class="dot"></span>Assignment</div>
-          <div class="evt-title">IMC451 Phase 2: IA Framework — Start Draft</div>
-          <div class="evt-time">🕖 6:00 PM — 8:00 PM</div>
-          <div class="evt-note">Start your part while fresh. Outline the IA Framework structure.</div>
-          <span class="evt-priority priority-med">📌 Due Monday</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Rest</div>
-          <div class="evt-title">Wind Down</div>
-          <div class="evt-time">🌙 9:00 PM — 1:00 AM (limit)</div>
-        </div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">Gamification Final Rev</div><div class="evt-time">🕗 5:00 AM — 6:00 PM</div><span class="evt-priority priority-high">⚡ Test manana</span></div>
+        <div class="event urgent"><div class="evt-label"><span class="dot"></span>EXAM</div><div class="evt-title">Gamification Test</div><div class="evt-time">🕗 Morning Slot</div><div class="evt-note">Walk in confident.</div><span class="evt-priority priority-high">⚡ Exam</span></div>
+        <div class="event assignment"><div class="evt-label"><span class="dot"></span>Assign</div><div class="evt-title">IMC451 Phase 2 Draft</div><div class="evt-time">🕖 6:00 PM — 8:00 PM</div><span class="evt-priority priority-med">📌 Due Mon</span></div>
       </div>
     </div>
 
-    <!-- SATURDAY 5 JUL (FIXED) -->
-    <div class="day-card">
+    <!-- SATURDAY -->
+    <div class="day-card reveal">
       <div class="day-head">
-        <div>
-          <div class="day-name">Saturday</div>
-          <div class="day-date">5 July</div>
-        </div>
+        <div><div class="day-name">Saturday</div><div class="day-date">5 July</div></div>
       </div>
       <div class="events">
-        <div class="event assignment">
-          <div class="evt-label"><span class="dot"></span>Assignment</div>
-          <div class="evt-title">IMC451 Phase 2: IA Framework — Write + Refine</div>
-          <div class="evt-time">🕑 2:00 PM — 6:00 PM</div>
-          <div class="evt-note">Flesh out your section after the test. Use energy while memory is fresh.</div>
-          <span class="evt-priority priority-high">⚡ Due Monday</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Presentation Prep</div>
-          <div class="evt-title">IMC451 Presentation Slides — Draft</div>
-          <div class="evt-time">🕖 7:00 PM — 9:00 PM</div>
-          <div class="evt-note">Prepare your slides for Monday. Don't wait last minute.</div>
-          <span class="evt-priority priority-med">📌 Pres Monday 3PM</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Rest</div>
-          <div class="evt-title">You've Earned It 😴</div>
-          <div class="evt-time">🌙 9:00 PM onwards</div>
-        </div>
+        <div class="event assignment"><div class="evt-label"><span class="dot"></span>Assign</div><div class="evt-title">IMC451 Refine IA</div><div class="evt-time">🕑 2:00 PM — 6:00 PM</div><span class="evt-priority priority-high">⚡ Due Mon</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Prep</div><div class="evt-title">IMC451 Slides Draft</div><div class="evt-time">🕖 7:00 PM — 9:00 PM</div><span class="evt-priority priority-med">📌 Pres Mon 3PM</span></div>
       </div>
     </div>
-
-  </div><!-- end week 13 grid -->
+  </div>
 </div>
 
-<hr class="week-divider">
+<hr class="week-divider reveal">
 
 <!-- ════════════ WEEK 14 ════════════ -->
-<div class="week-section">
-  <div class="week-label">
+<div id="week14" class="week-section scroll-anchor">
+  <div class="week-label reveal">
     <h2>🏁 Week 14</h2>
     <div class="week-line"></div>
     <div class="week-tag">6 Jul — 8 Jul · Final Lap</div>
   </div>
 
   <div class="day-grid">
-
-    <!-- SUNDAY 6 JUL -->
-    <div class="day-card">
+    <!-- SUNDAY -->
+    <div class="day-card reveal">
       <div class="day-head">
-        <div>
-          <div class="day-name">Sunday</div>
-          <div class="day-date">6 July</div>
-        </div>
+        <div><div class="day-name">Sunday</div><div class="day-date">6 July</div></div>
       </div>
       <div class="events">
-        <div class="event assignment">
-          <div class="evt-label"><span class="dot"></span>Assignment</div>
-          <div class="evt-title">IMC451: Finalise Phase 2 IA Framework</div>
-          <div class="evt-time">🕙 10:00 AM — 1:00 PM</div>
-          <div class="evt-note">Polish your section, make sure it's complete and presentable.</div>
-          <span class="evt-priority priority-high">⚡ Submit to group</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Presentation Prep</div>
-          <div class="evt-title">Practise IMC451 Presentation</div>
-          <div class="evt-time">🕑 2:00 PM — 4:00 PM</div>
-          <div class="evt-note">Say it out loud. Time yourself. Know your slides cold.</div>
-          <span class="evt-priority priority-high">⚡ Pres tmr 3PM</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Python Test Prep — Chapters 1–4</div>
-          <div class="evt-time">🕔 5:00 PM — 8:00 PM</div>
-          <div class="evt-note">Start early on Python — test Tuesday! Cover first half tonight.</div>
-          <span class="evt-priority priority-high">⚡ Test Tue 2PM</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Rest</div>
-          <div class="evt-title">Final Wind Down</div>
-          <div class="evt-time">🌙 9:00 PM — 1:00 AM (limit)</div>
-        </div>
+        <div class="event assignment"><div class="evt-label"><span class="dot"></span>Assign</div><div class="evt-title">IMC451 Finalise Phase 2</div><div class="evt-time">🕙 10:00 AM — 1:00 PM</div><span class="evt-priority priority-high">⚡ Submit</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Prep</div><div class="evt-title">Practise IMC451 Pres</div><div class="evt-time">🕑 2:00 PM — 4:00 PM</div><span class="evt-priority priority-high">⚡ Pres tmr 3PM</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">Python Ch 1–4</div><div class="evt-time">🕔 5:00 PM — 8:00 PM</div><span class="evt-priority priority-high">⚡ Test Tue 2PM</span></div>
       </div>
     </div>
 
-    <!-- MONDAY 7 JUL -->
-    <div class="day-card">
+    <!-- MONDAY -->
+    <div class="day-card reveal">
       <div class="day-head">
-        <div>
-          <div class="day-name">Monday</div>
-          <div class="day-date">7 July</div>
-        </div>
+        <div><div class="day-name">Monday</div><div class="day-date">7 July</div></div>
       </div>
       <div class="events">
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Python Test Prep — Chapters 5–7</div>
-          <div class="evt-time">🕗 8:00 AM — 11:00 AM</div>
-          <div class="evt-note">Middle chapters. Focus on syntax, functions, logic. Practice code.</div>
-          <span class="evt-priority priority-high">⚡ Test tmr</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Presentation Rehearsal</div>
-          <div class="evt-title">Final Practise: IMC451 Pres</div>
-          <div class="evt-time">🕛 11:30 AM — 1:00 PM</div>
-          <div class="evt-note">Run through one more time. Chill after. You're ready.</div>
-          <span class="evt-priority priority-high">⚡ Present at 3PM</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Break</div>
-          <div class="evt-title">Lunch + Mental Prep</div>
-          <div class="evt-time">🕐 1:00 PM — 2:45 PM</div>
-          <div class="evt-note">Eat, rest eyes, dress well. Confidence = performance.</div>
-        </div>
-        <div class="event urgent">
-          <div class="evt-label"><span class="dot"></span>PRESENTATION</div>
-          <div class="evt-title">IMC451 Architecture Presentation</div>
-          <div class="evt-time">🕒 3:00 PM — 5:00 PM</div>
-          <div class="evt-note">Phase 2: IA Framework — your part. Deliver it strong!</div>
-          <span class="evt-priority priority-high">⚡ Graded</span>
-        </div>
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Python Test Prep — Chapters 8–9</div>
-          <div class="evt-time">🕖 6:00 PM — 9:00 PM</div>
-          <div class="evt-note">Final chapters. Drill code. Last push before the test tomorrow.</div>
-          <span class="evt-priority priority-high">⚡ Test tmr 2PM</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Wind Down</div>
-          <div class="evt-title">Sleep Early Tonight</div>
-          <div class="evt-time">🌙 10:00 PM — 1:00 AM (limit)</div>
-          <div class="evt-note">Rest = performance. No late night cramming tonight.</div>
-        </div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">Python Ch 5–7</div><div class="evt-time">🕗 8:00 AM — 11:00 AM</div><span class="evt-priority priority-high">⚡ Test tmr</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Prep</div><div class="evt-title">Final Practise IMC451</div><div class="evt-time">🕛 11:30 AM — 1:00 PM</div><span class="evt-priority priority-high">⚡ Pres 3PM</span></div>
+        <div class="event urgent"><div class="evt-label"><span class="dot"></span>Present</div><div class="evt-title">IMC451 Presentation</div><div class="evt-time">🕒 3:00 PM — 5:00 PM</div><span class="evt-priority priority-high">⚡ Graded</span></div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Study</div><div class="evt-title">Python Ch 8–9</div><div class="evt-time">🕖 6:00 PM — 9:00 PM</div><span class="evt-priority priority-high">⚡ Test tmr 2PM</span></div>
       </div>
     </div>
 
-    <!-- TUESDAY 8 JUL -->
-    <div class="day-card" style="border-color:rgba(95,255,212,0.3); box-shadow: 0 0 30px rgba(95,255,212,0.06);">
-      <div class="day-head">
-        <div>
-          <div class="day-name" style="color:var(--mint)">Tuesday</div>
-          <div class="day-date">8 July</div>
-        </div>
+    <!-- TUESDAY -->
+    <div class="day-card reveal" style="border-color:rgba(95,255,212,0.5); box-shadow: 0 0 40px rgba(95,255,212,0.1);">
+      <div class="day-head" style="background:rgba(95,255,212,0.05)">
+        <div><div class="day-name" style="color:var(--mint)">Tuesday</div><div class="day-date">8 July</div></div>
         <span class="today-badge" style="background:var(--mint); color:#0D1B2A;">FINAL DAY</span>
       </div>
       <div class="events">
-        <div class="event prep">
-          <div class="evt-label"><span class="dot"></span>Last Review</div>
-          <div class="evt-title">Python: Quick Revision All Chapters</div>
-          <div class="evt-time">🕗 8:00 AM — 12:00 PM</div>
-          <div class="evt-note">Scan notes, run small code examples, review error types. Light revision only.</div>
-          <span class="evt-priority priority-med">📌 Test 2PM</span>
-        </div>
-        <div class="event free">
-          <div class="evt-label"><span class="dot"></span>Break</div>
-          <div class="evt-title">Lunch + Mental Prep</div>
-          <div class="evt-time">🕛 12:00 PM — 1:45 PM</div>
-          <div class="evt-note">Eat properly. Clear your head. You've put in the work.</div>
-        </div>
-        <div class="event urgent">
-          <div class="evt-label"><span class="dot"></span>PYTHON TEST</div>
-          <div class="evt-title">Python Test — 9 Chapters</div>
-          <div class="evt-time">🕑 2:00 PM — 5:00 PM</div>
-          <div class="evt-note">Final test of Sem 3. Code with confidence. You got this! 💪</div>
-          <span class="evt-priority priority-high">⚡ Final Exam</span>
-        </div>
-        <div class="event rest">
-          <div class="evt-label"><span class="dot"></span>🎉 SEM 3 DONE!</div>
-          <div class="evt-title">Celebrate — You Made It!</div>
-          <div class="evt-time">🌟 5:00 PM onwards</div>
-          <div class="evt-note">Sem 3 is officially OVER. Rest, reward yourself, celebrate big. You earned it!</div>
-        </div>
+        <div class="event prep"><div class="evt-label"><span class="dot"></span>Review</div><div class="evt-title">Python: Quick Revision</div><div class="evt-time">🕗 8:00 AM — 12:00 PM</div></div>
+        <div class="event urgent"><div class="evt-label"><span class="dot"></span>EXAM</div><div class="evt-title">Python Final Test</div><div class="evt-time">🕑 2:00 PM — 5:00 PM</div><div class="evt-note">Code with confidence! 💪</div><span class="evt-priority priority-high">⚡ Final Exam</span></div>
+        <div class="event rest"><div class="evt-label"><span class="dot"></span>🎉 DONE!</div><div class="evt-title">Celebrate</div><div class="evt-time">🌟 5:00 PM onwards</div><div class="evt-note">Sem 3 is officially OVER.</div></div>
       </div>
     </div>
-
-  </div><!-- end week 14 grid -->
+  </div>
 </div>
 
+<!-- BACK TO TOP BUTTON -->
+<a href="#top" class="back-to-top" id="btt">↑</a>
+
 <!-- FOOTER -->
-<footer>
-  <p> <span>XenArthur</span> · Sem 3 Final Sprint · Keep going — the finish line is closer than you think 🌙</p>
+<footer class="reveal">
+  <p>Built for <span>XenArthur</span> · Cinematic Sprint Mode · Keep going, the end is near 🚀</p>
 </footer>
 
 <script>
+  // --- SCROLL REVEAL OBSERVER ---
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('active');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach((el) => {
+    observer.observe(el);
+  });
+
+  // --- BACK TO TOP & NAVBAR LOGIC ---
+  const bttBtn = document.getElementById('btt');
+  const navbar = document.getElementById('navbar');
+  let lastScrollY = window.scrollY;
+
+  window.addEventListener('scroll', () => {
+    // Show/Hide Back to top button
+    if (window.scrollY > 400) {
+      bttBtn.classList.add('visible');
+    } else {
+      bttBtn.classList.remove('visible');
+    }
+
+    // Optional: Hide navbar on scroll down, show on scroll up for cleaner view
+    if (window.scrollY > lastScrollY && window.scrollY > 100) {
+      navbar.style.transform = 'translateY(-100%)';
+    } else {
+      navbar.style.transform = 'translateY(0)';
+    }
+    lastScrollY = window.scrollY;
+  });
+
   // --- CAROUSEL LOGIC ---
   const quotes = [
     { text: "You don't have to be great to get started, but you have to get started to be great.", author: "Les Brown" },
@@ -947,7 +782,6 @@
     { text: "Success is the sum of small efforts repeated day in and day out.", author: "Robert Collier" },
     { text: "Don't watch the clock. Do what it does — keep going.", author: "Sam Levenson" },
     { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
-    { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
     { text: "Great things are done by a series of small things brought together.", author: "Vincent Van Gogh" }
   ];
 
@@ -955,7 +789,7 @@
   const qText = document.getElementById('quoteText');
   const qAuthor = document.getElementById('quoteAuthor');
 
-  function rotateQuote() {
+  setInterval(() => {
     qText.style.opacity = '0';
     setTimeout(() => {
       current = (current + 1) % quotes.length;
@@ -963,77 +797,86 @@
       qAuthor.textContent = '— ' + quotes[current].author;
       qText.style.opacity = '1';
     }, 500);
-  }
-  setInterval(rotateQuote, 6000);
+  }, 6000);
 
-  // --- LIVE CLOCK LOGIC ---
+  // --- AUTOMATED ALARMS & CLOCK ---
+  const mySchedule = [
+    { month: 6, date: 1, h: 9, m: 0, title: "Class: IMC501 Lecture", msg: "Starts at 9:00 AM" },
+    { month: 6, date: 1, h: 11, m: 0, title: "Class: Python", msg: "Starts at 11:00 AM" },
+    { month: 6, date: 1, h: 15, m: 0, title: "Study: Gamification Ch 1-3", msg: "Focus! Skim slides." },
+    { month: 6, date: 1, h: 18, m: 0, title: "Study: Final Test Ch 6-7", msg: "Push through tonight." },
+    { month: 6, date: 2, h: 7, m: 30, title: "Prep: Mandarin", msg: "Morning memory retention!" },
+    { month: 6, date: 2, h: 9, m: 30, title: "Prep: LCC Pres", msg: "Hafal Objectives." },
+    { month: 6, date: 2, h: 12, m: 0, title: "Roleplay: Mandarin", msg: "You got this. Breathe." },
+    { month: 6, date: 2, h: 14, m: 0, title: "PRESENTATION: LCC", msg: "Present with confidence!" },
+    { month: 6, date: 2, h: 16, m: 30, title: "Study: CTU Full Review", msg: "Drill 3 sets past questions." },
+    { month: 6, date: 3, h: 8, m: 0, title: "Study: CTU Last Review", msg: "Focus on weak areas." },
+    { month: 6, date: 3, h: 16, m: 0, title: "FINAL TEST: CTU", msg: "40 Questions. You are READY." },
+    { month: 6, date: 3, h: 20, m: 0, title: "Study: Gamification Ch 4-10", msg: "Night session." },
+    { month: 6, date: 4, h: 5, m: 0, title: "Study: Gamification Final", msg: "Early start!" },
+    { month: 6, date: 4, h: 8, m: 0, title: "TEST DAY: Gamification", msg: "Walk in confident." },
+    { month: 6, date: 4, h: 18, m: 0, title: "Assignment: IMC451", msg: "Draft IA Framework." },
+    { month: 6, date: 5, h: 14, m: 0, title: "Assignment: IMC451", msg: "Flesh out your section." },
+    { month: 6, date: 5, h: 19, m: 0, title: "Prep: IMC451 Pres", msg: "Draft slides." },
+    { month: 6, date: 6, h: 10, m: 0, title: "Assignment: IMC451", msg: "Finalise Phase 2." },
+    { month: 6, date: 6, h: 14, m: 0, title: "Prep: IMC451 Pres", msg: "Say it out loud." },
+    { month: 6, date: 6, h: 17, m: 0, title: "Study: Python Ch 1-4", msg: "Cover first half tonight." },
+    { month: 6, date: 7, h: 8, m: 0, title: "Study: Python Ch 5-7", msg: "Syntax, functions, logic." },
+    { month: 6, date: 7, h: 11, m: 30, title: "Prep: Final Practise", msg: "Run through IMC451." },
+    { month: 6, date: 7, h: 15, m: 0, title: "PRESENTATION: IMC451", msg: "Deliver it strong!" },
+    { month: 6, date: 7, h: 18, m: 0, title: "Study: Python Ch 8-9", msg: "Last push before test." },
+    { month: 6, date: 8, h: 8, m: 0, title: "Study: Python Quick Rev", msg: "Scan notes only." },
+    { month: 6, date: 8, h: 14, m: 0, title: "FINAL TEST: Python", msg: "Code with confidence!" }
+  ];
+
+  let lastTriggeredEvent = null;
+
   function updateClock() {
     const now = new Date();
-    let h = now.getHours();
-    let m = now.getMinutes();
+    let h = now.getHours(); let m = now.getMinutes();
+    let displayH = h % 12 || 12;
+    let displayM = m < 10 ? '0' + m : m;
     let ampm = h >= 12 ? 'PM' : 'AM';
-    
-    h = h % 12;
-    h = h ? h : 12; // 0 becomes 12
-    m = m < 10 ? '0' + m : m;
-    
-    document.getElementById('liveTime').textContent = `${h}:${m} ${ampm}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
+    document.getElementById('liveTime').textContent = `${displayH}:${displayM} ${ampm}`;
 
-  // --- TOAST & NATIVE DEVICE NOTIFICATION LOGIC ---
+    mySchedule.forEach(event => {
+      if (now.getMonth() === event.month && now.getDate() === event.date && h === event.h && m === event.m) {
+        const eventId = `${event.date}-${event.h}-${event.m}`;
+        if (lastTriggeredEvent !== eventId) {
+          triggerDeviceNotification(event.title, event.msg);
+          showToastAlert(event.title, event.msg);
+          lastTriggeredEvent = eventId;
+        }
+      }
+    });
+  }
+  setInterval(updateClock, 1000); updateClock();
+
   function triggerTestAlert() {
-    // 1. Play the audio chime
+    showToastAlert("⏰ System Active", "Everything is working smoothly.");
+    triggerDeviceNotification("⏰ Alert Connected", "Notifications are active!");
+  }
+
+  function showToastAlert(title, message) {
     const audio = document.getElementById('alertSound');
-    audio.volume = 0.5;
-    audio.play().catch(e => console.log("Audio play prevented by browser policy until user interacts."));
+    audio.volume = 0.5; audio.play().catch(e => console.log("Audio prevented"));
     
-    // 2. Show the on-screen Toast Notification 
     const toast = document.createElement('div');
     toast.className = 'toast';
-    toast.innerHTML = `
-      <div class="toast-icon">⏰</div>
-      <div>
-        <div class="toast-text">Upcoming: Study Session!</div>
-        <div class="toast-time">Stay focused, Xen. You got this.</div>
-      </div>
-    `;
-    const container = document.getElementById('toastContainer');
-    container.appendChild(toast);
+    toast.innerHTML = `<div class="toast-icon">🚀</div><div><div class="toast-text">${title}</div><div class="toast-time">${message}</div></div>`;
+    document.getElementById('toastContainer').appendChild(toast);
     
     setTimeout(() => toast.classList.add('show'), 100);
-    
-    setTimeout(() => {
-      toast.classList.remove('show');
-      setTimeout(() => toast.remove(), 400); 
-    }, 5000);
-
-    // 3. Trigger the NATIVE Phone/Desktop Notification
-    triggerDeviceNotification("⏰ Time to focus, XenArthur!", "Your next study session is starting.");
+    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 500); }, 6000);
   }
 
-  // --- NATIVE NOTIFICATION FUNCTION ---
   function triggerDeviceNotification(title, message) {
-    if (!("Notification" in window)) {
-      console.log("This browser does not support mobile notifications.");
-      return;
-    }
-
+    if (!("Notification" in window)) return;
     if (Notification.permission === "granted") {
-      new Notification(title, { 
-        body: message, 
-        icon: "https://cdn-icons-png.flaticon.com/512/825/825590.png"
-      });
-    } 
-    else if (Notification.permission !== "denied") {
-      Notification.requestPermission().then(permission => {
-        if (permission === "granted") {
-          new Notification(title, { 
-            body: message,
-            icon: "https://cdn-icons-png.flaticon.com/512/825/825590.png" 
-          });
-        }
+      new Notification(title, { body: message, icon: "https://cdn-icons-png.flaticon.com/512/825/825590.png" });
+    } else if (Notification.permission !== "denied") {
+      Notification.requestPermission().then(p => {
+        if (p === "granted") new Notification(title, { body: message, icon: "https://cdn-icons-png.flaticon.com/512/825/825590.png" });
       });
     }
   }
