@@ -34,10 +34,91 @@
     overflow-x: hidden;
   }
 
+  /* === CLOCK & HEADER === */
+  .top-header {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px 40px 0;
+    position: relative;
+    z-index: 10;
+  }
+
+  .live-clock {
+    background: rgba(13, 27, 42, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--border);
+    padding: 10px 20px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+  }
+
+  .time-display {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mint);
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(95,255,212,0.3);
+  }
+
+  .alarm-btn {
+    background: rgba(200,184,232,0.1);
+    border: 1px solid var(--border);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 12px;
+    padding: 4px 10px;
+    border-radius: 50px;
+    transition: all 0.2s;
+    font-weight: 600;
+  }
+  
+  .alarm-btn:hover {
+    background: var(--lavender);
+    color: var(--bg);
+  }
+
+  /* === TOAST ALERT === */
+  .toast-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toast {
+    background: var(--card2);
+    border-left: 4px solid var(--coral);
+    color: var(--text);
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .toast.show {
+    transform: translateX(0);
+  }
+
+  .toast-icon { font-size: 20px; }
+  .toast-text { font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 500; }
+  .toast-time { font-size: 11px; color: var(--muted); display: block; margin-top: 4px; }
+
+
   /* === HERO === */
   .hero {
     position: relative;
-    padding: 60px 40px 40px;
+    padding: 20px 40px 40px;
     text-align: center;
     overflow: hidden;
   }
@@ -352,15 +433,6 @@
   .priority-med { background: rgba(255,209,102,0.2); color: var(--gold); }
   .priority-low { background: rgba(95,255,212,0.15); color: var(--mint); }
 
-  .no-event {
-    text-align: center;
-    padding: 28px 12px;
-    font-size: 12px;
-    color: var(--muted);
-  }
-
-  .no-event .rest-icon { font-size: 28px; display: block; margin-bottom: 6px; }
-
   /* === DIVIDER === */
   .week-divider {
     margin: 10px 30px 50px;
@@ -418,34 +490,11 @@
     color: var(--muted);
   }
 
-  footer span { color: var(--lavender); }
-
-  /* === ANIMATIONS === */
-  @keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .day-card {
-    animation: fadeSlideUp 0.5s ease both;
-  }
-
-  .day-grid .day-card:nth-child(1) { animation-delay: 0.05s; }
-  .day-grid .day-card:nth-child(2) { animation-delay: 0.10s; }
-  .day-grid .day-card:nth-child(3) { animation-delay: 0.15s; }
-  .day-grid .day-card:nth-child(4) { animation-delay: 0.20s; }
-  .day-grid .day-card:nth-child(5) { animation-delay: 0.25s; }
-  .day-grid .day-card:nth-child(6) { animation-delay: 0.30s; }
-
-  @keyframes pulseGlow {
-    0%, 100% { box-shadow: 0 0 0 1px rgba(200,184,232,0.2), 0 8px 32px rgba(200,184,232,0.05); }
-    50% { box-shadow: 0 0 0 1px rgba(200,184,232,0.4), 0 8px 40px rgba(200,184,232,0.15); }
-  }
-
-  .day-card.today { animation: fadeSlideUp 0.5s ease both, pulseGlow 3s ease-in-out infinite; }
+  footer span { color: var(--lavender); font-weight: bold; }
 
   @media (max-width: 700px) {
-    .hero { padding: 40px 20px 30px; }
+    .header-bar { padding: 15px 20px; }
+    .hero { padding: 20px 20px 30px; }
     .week-section, .progress-section { padding: 0 14px; }
     .legend { padding: 0 14px; }
     .day-grid { grid-template-columns: 1fr; }
@@ -454,10 +503,20 @@
 </head>
 <body>
 
-<!-- HERO -->
+<audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="top-header">
+  <div class="live-clock">
+    <div id="liveTime" class="time-display">00:00 AM</div>
+    <button class="alarm-btn" onclick="triggerTestAlert()">🔔 Test Alert</button>
+  </div>
+</div>
+
 <div class="hero">
   <div class="hero-badge">📅 Academic Sprint Mode</div>
-  <h1>Week 13 → 14<br>Let's Get It Done.</h1>
+  <h1>Week 13 → 14<br>Irfan Kene Buat !.</h1>
   <p class="hero-sub">Tuesday, 1 July — Tuesday, 8 July 2025 &nbsp;·&nbsp; Sem 3 Final Push</p>
 
   <div class="quote-box">
@@ -466,7 +525,6 @@
   </div>
 </div>
 
-<!-- LEGEND -->
 <div class="legend">
   <div class="legend-item"><div class="legend-dot" style="background:var(--sky)"></div>Class / Lecture</div>
   <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div>Test / Exam</div>
@@ -476,7 +534,6 @@
   <div class="legend-item"><div class="legend-dot" style="background:var(--mint)"></div>Free / Rest Time</div>
 </div>
 
-<!-- STATS -->
 <div class="progress-section">
   <div class="stat-card">
     <div class="stat-num" style="color:var(--coral)">4</div>
@@ -500,7 +557,6 @@
   </div>
 </div>
 
-<!-- ════════════ WEEK 13 ════════════ -->
 <div class="week-section">
   <div class="week-label">
     <h2>📖 Week 13</h2>
@@ -510,7 +566,6 @@
 
   <div class="day-grid">
 
-    <!-- TUESDAY 1 JUL -->
     <div class="day-card today">
       <div class="day-head">
         <div>
@@ -553,7 +608,6 @@
       </div>
     </div>
 
-    <!-- WEDNESDAY 2 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -564,7 +618,7 @@
       <div class="events">
         <div class="event prep">
           <div class="evt-label"><span class="dot"></span>Preparation</div>
-          <div class="evt-title">Mandarin Hafal Script  —  Final Round </div>
+          <div class="evt-title">Mandarin Hafal Script — Final Round</div>
           <div class="evt-time">🕗 7:30 AM — 9:30 AM</div>
           <div class="evt-note">Morning = best memory retention! Read aloud, repeat.</div>
           <span class="evt-priority priority-high">⚡ Roleplay 12PM</span>
@@ -598,14 +652,13 @@
         </div>
         <div class="event free">
           <div class="evt-label"><span class="dot"></span>Rest</div>
-          <div class="evt-title">Relax + Light Revision </div>
+          <div class="evt-title">Relax + Light Revision</div>
           <div class="evt-time">🌙 9:00 PM — 1:00 AM (limit)</div>
           <div class="evt-note">Don't burn out. Quick recap notes only.</div>
         </div>
       </div>
     </div>
 
-    <!-- THURSDAY 3 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -634,7 +687,6 @@
           <div class="evt-note">8 chapters, 3 sets practised. You are READY.</div>
           <span class="evt-priority priority-high">⚡ Exam</span>
         </div>
-       <div class="events">
         <div class="event prep">
           <div class="evt-label"><span class="dot"></span>Study Session</div>
           <div class="evt-title">Gamification: Chapter 4–10</div>
@@ -651,7 +703,6 @@
       </div>
     </div>
 
-    <!-- FRIDAY 4 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -662,12 +713,11 @@
       <div class="events">
         <div class="event prep">
           <div class="evt-label"><span class="dot"></span>Study Session</div>
-          <div class="evt-title">Gamification:Final Revison </div>
+          <div class="evt-title">Gamification: Final Revision</div>
           <div class="evt-time">🕗 5:00 AM — 6:00 PM</div>
           <div class="evt-note">Focus on weak areas. Drill sets again. Summarise key points.</div>
           <span class="evt-priority priority-high">⚡ Test manana</span>
         </div>
-        <div class="events">
         <div class="event urgent">
           <div class="evt-label"><span class="dot"></span>TEST DAY</div>
           <div class="evt-title">Gamification Subject Test</div>
@@ -690,7 +740,6 @@
       </div>
     </div>
 
-    <!-- SATURDAY 5 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -698,7 +747,7 @@
           <div class="day-date">5 July</div>
         </div>
       </div>
-        </div>
+      <div class="events">
         <div class="event assignment">
           <div class="evt-label"><span class="dot"></span>Assignment</div>
           <div class="evt-title">IMC451 Phase 2: IA Framework — Write + Refine</div>
@@ -721,12 +770,10 @@
       </div>
     </div>
 
-  </div><!-- end week 13 grid -->
-</div>
+  </div></div>
 
 <hr class="week-divider">
 
-<!-- ════════════ WEEK 14 ════════════ -->
 <div class="week-section">
   <div class="week-label">
     <h2>🏁 Week 14</h2>
@@ -736,7 +783,6 @@
 
   <div class="day-grid">
 
-    <!-- SUNDAY 6 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -774,7 +820,6 @@
       </div>
     </div>
 
-    <!-- MONDAY 7 JUL -->
     <div class="day-card">
       <div class="day-head">
         <div>
@@ -826,7 +871,6 @@
       </div>
     </div>
 
-    <!-- TUESDAY 8 JUL -->
     <div class="day-card" style="border-color:rgba(95,255,212,0.3); box-shadow: 0 0 30px rgba(95,255,212,0.06);">
       <div class="day-head">
         <div>
@@ -865,15 +909,14 @@
       </div>
     </div>
 
-  </div><!-- end week 14 grid -->
-</div>
+  </div></div>
 
-<!-- FOOTER -->
 <footer>
-  <p>Built for <span>Xen</span> · Sem 3 Final Sprint ·  Keep going — the finish line is closer than you think 🌙</p>
+  <p>Built for <span>XenArthur</span> · Sem 3 Final Sprint · Keep going — the finish line is closer than you think 🌙</p>
 </footer>
 
 <script>
+  // --- CAROUSEL LOGIC ---
   const quotes = [
     { text: "You don't have to be great to get started, but you have to get started to be great.", author: "Les Brown" },
     { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
@@ -881,10 +924,7 @@
     { text: "Don't watch the clock. Do what it does — keep going.", author: "Sam Levenson" },
     { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
     { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
-    { text: "Great things are done by a series of small things brought together.", author: "Vincent Van Gogh" },
-    { text: "You are closer than you were yesterday.", author: "Unknown" },
-    { text: "Hard work beats talent when talent doesn't work hard.", author: "Tim Notke" },
-    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" }
+    { text: "Great things are done by a series of small things brought together.", author: "Vincent Van Gogh" }
   ];
 
   let current = 0;
@@ -900,8 +940,59 @@
       qText.style.opacity = '1';
     }, 500);
   }
-
   setInterval(rotateQuote, 6000);
+
+  // --- LIVE CLOCK LOGIC ---
+  function updateClock() {
+    const now = new Date();
+    let h = now.getHours();
+    let m = now.getMinutes();
+    let s = now.getSeconds();
+    let ampm = h >= 12 ? 'PM' : 'AM';
+    
+    h = h % 12;
+    h = h ? h : 12; // 0 becomes 12
+    m = m < 10 ? '0' + m : m;
+    
+    document.getElementById('liveTime').textContent = `${h}:${m} ${ampm}`;
+    
+    /* Advanced Tip for XenArthur: 
+      You can add an 'if' statement here to check if the current time matches 
+      your study session time and automatically run triggerAlert()! 
+      Example: if (h == 8 && m == 0 && ampm == 'PM') { triggerAlert("Time to study Python!"); }
+    */
+  }
+  setInterval(updateClock, 1000);
+  updateClock();
+
+  // --- TOAST NOTIFICATION LOGIC ---
+  function triggerTestAlert() {
+    const audio = document.getElementById('alertSound');
+    audio.volume = 0.5; // Keeps it from being too loud
+    audio.play().catch(e => console.log("Audio play prevented by browser policy until user interacts."));
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <div class="toast-icon">⏰</div>
+      <div>
+        <div class="toast-text">Upcoming: Study Session!</div>
+        <div class="toast-time">Stay focused, Xen. You got this.</div>
+      </div>
+    `;
+    
+    const container = document.getElementById('toastContainer');
+    container.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => toast.classList.add('show'), 100);
+    
+    // Remove after 5 seconds
+    setTimeout(() => {
+      toast.classList.remove('show');
+      setTimeout(() => toast.remove(), 400); // wait for exit animation
+    }, 5000);
+  }
 </script>
 </body>
 </html>
